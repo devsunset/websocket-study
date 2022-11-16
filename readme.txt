@@ -18,6 +18,8 @@ https://socket.io/
 https://www.npmjs.com/package/websocket-vs-socket.io
 https://github.com/rsp/node-websocket-vs-socket.io
 
+https://stomp.github.io/
+
 ########################################################
 ### Reference
 
