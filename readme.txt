@@ -30,6 +30,7 @@ https://tecoble.techcourse.co.kr/post/2020-09-20-websocket/
 https://velog.io/@codingbotpark/Web-Socket-%EC%9D%B4%EB%9E%80
 https://inpa.tistory.com/entry/WEB-%F0%9F%8C%90-%EC%9B%B9-%EC%86%8C%EC%BC%93-Socket-%EC%97%AD%EC%82%AC%EB%B6%80%ED%84%B0-%EC%A0%95%EB%A6%AC
 https://ko.javascript.info/websocket
+https://hudi.blog/websocket-with-nodejs/
 
 
 https://dev-gorany.tistory.com/235
@@ -42,12 +43,14 @@ https://dev-gorany.tistory.com/235
 기존의 단방향 HTTP 프로토콜과 호환되어 양방향 통신을 제공하기 위해 개발된 프로토콜
 일반 Socket통신과 달리 HTTP 80 Port를 사용하므로 방화벽에 제약이 없으며 통상 WebSocket으로 불림
 접속까지는 HTTP 프로토콜을 이용하고, 그 이후 통신은 자체적인 WebSocket 프로토콜로 통신
+RFC 6455 로 국제적으로 표준화 되어있다. HTTP 와 웹소켓은 모두 OSI 참조 모델의 7계층에 위치해있고, TCP 에 의존
 
 
 WebSocket은 HTTP(Hyper Text Transfer Protocol)를 사용하는 네트워크 데이터 통신의 단점을 보완
 HTTP를 사용한 통신은 클라이언트가 먼저 요청을 보내고, 그 요청에 따라 웹 서버가 응답하는 형태이며 
 웹 서버는 응답을 보낸 후 웹 브라우저와의 연결을 끊음
 양쪽이 데이터를 동시에 보내는 것이 아니기 때문에 이러한 통신 방식을 반이중 통신(Half Duplex)이라고 함 
+WebSocket은 TCP/IP 의 소켓과 마찬가지로 전이중통신(Full-Duplex Communication) 을 지원
  
 
 HTTP를 이용한 정보 송수신은 클라이언트의 요청이 없다면, 서버로부터 응답을 받을 수 없는 구조
@@ -315,6 +318,213 @@ WebSocket은 HTTP와 달리 Stateful protocol이기 때문에 서버와 클라�
 4.서버와 클라이언트 간의 Socket 연결을 유지한다는 것 자체가 비용이 드는 일, 트래픽양이 많은 서버 같은 경우에는 CPU에 큰 부담이 될 수 있음 
 
 5.서버와 클라이언트 간의 연결이 끊어졌을 때 생성되는 에러 메세지가 구체적이지 않아서 (예를 들어 여러가지 다른 이유로 연결이 끊어졌는데 에러 메세지가 같은 경우) 디버깅을 하는데 어려움이 많음 
+
+
+# Websocket Example (Simple chat based on nodejs)
+-----------------------------------------------------------
+
+1) express 프로젝트 생성
+  $ mkdir chat && cd chat
+  $ yarn init
+  $ yarn add express
+  $ yarn add ws
+
+2) client page 작성 
+  $ mkdir public && cd public
+  $ vi index.html
+  	<!DOCTYPE html>
+	<html lang="ko">
+	  <head>
+	    <meta charset="UTF-8" />
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	    <title>Websocket Chatting</title>
+	  </head>
+	  <body>
+	    <h1>Hello Express</h1>
+	  </body>
+	</html>
+
+3) express server 작성 
+  $ cd chat
+  $ vi app.js
+  	const express = require("express")
+	const app = express()
+
+	app.use(express.static("public"))
+
+	app.listen(8000, () => {
+	  console.log('Example app listening on port 8000')
+	})
+
+4) express 서버 기동 
+   $ node app.js
+   http://localhost:8000
+
+5) WebSocket server 구현 
+    app.js 파일에 아래 내용 추가 
+
+    const WebSocket = require('ws');
+
+	// 웹소켓 서버 생성
+	const wss = new WebSocket.Server({ port: 8001 })
+
+	// 웹소켓 서버 연결 이벤트 바인드
+	wss.on("connection", ws => {
+	  console.log(`WebSocket connection`)
+	  // 데이터 수신 이벤트 바인드
+	  ws.on("message", data => {
+		console.log(`Received from client: ${data}`)
+		// 서버의 답장
+		ws.send(`Received ${data}`) 
+	  })
+	})
+
+
+6) client WebSocket Request
+   index.html 파일에 아래 내용 추가 
+   <script>
+	  const ws = new WebSocket("ws://localhost:8001")
+
+	  function send() {
+	    ws.send("Hello") // 서버에 데이터 전송
+	  }
+   </script>	
+
+   <h1>Hello Express</h1>
+   <button onClick="send()">send</button>
+
+7) 서버 재시작 후 send 버튼 클릭 서버 로그 출력 확인 
+   node app.js 
+   http://localhost:8000
+   send 버튼을 클릭 하면 서버 로그에 아래와 같이 출력 됨 
+   Received from client: Hello
+
+8) WebSocket server Response
+   app.js 파일 내용 아래 부분 처럼 수정 
+
+	// 웹소켓 서버 연결 이벤트 바인드
+	wss.on("connection", (ws, request) => {
+	  console.log(`Hello, ${request.socket.remoteAddress}`)
+	  ws.send(`Hello, ${request.socket.remoteAddress}`)
+	  // 연결 직후 해당 클라이언트로 데이터 전송
+
+	  // 데이터 수신 이벤트 바인드
+	  ws.on("message", data => {
+		console.log(`Received from client: ${data}`)
+		// 서버의 응답 추가 
+		ws.send(`Received ${data}`) 
+	  })
+	})
+
+9) 서버 재시작 후 브라우저 개발자 도구에서 ws 항목에서 send, receive 데이타 흐름 확인 가능 
+
+
+10) chat 서비스 구현 
+   현재 까지 작업 백업 
+   index.html -> index.html.original
+   app.js -> app.js.original
+
+   1) index.html 파일 수정 
+	<!DOCTYPE html>
+	<html lang="ko">
+	  <head>
+	    <meta charset="UTF-8" />
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	    <title>Websocket Chatting</title>
+
+	    <script>
+		  const ws = new WebSocket("ws://localhost:8001")
+		  
+		  function clearMessage() {
+			document.getElementById("message").value = ""
+		  }
+
+	      // 메세지 전송
+	      function sendMessage() {
+			const nickname = document.getElementById("nickname").value
+			const message = document.getElementById("message").value
+			const fullMessage = `${nickname}: ${message}`
+
+			ws.send(fullMessage)
+			clearMessage()
+		  }
+		  
+	      // 메세지 수신
+		  function receiveMessage(event) {
+			const chat = document.createElement("div")
+			const message = document.createTextNode(event.data)
+			chat.appendChild(message)
+
+			const chatLog = document.getElementById("chat-log")
+			chatLog.appendChild(chat)
+		  }
+
+		  ws.onmessage = receiveMessage
+	    </script>
+	  </head>
+	  <body>
+	    <h1>WebSocket Chat</h1>
+	    <div>
+	      <input
+	        type="text"
+	        id="nickname"
+	        placeholder="닉네임"
+	        style="width: 50px"
+	      />
+	      <input
+	        type="text"
+	        id="message"
+	        placeholder="메세지"
+	        style="width: 200px"
+	      />
+		  <button onClick="sendMessage()">전송</button>
+	    </div>
+
+	    <div id="chat-log"></div>
+	  </body>
+	</html>
+
+   2) app.js 파일 수정 
+	const express = require("express")
+	const app = express()
+	const WebSocket = require('ws');
+
+	app.use(express.static("public"))
+
+	app.listen(8000, () => {
+		console.log('Example app listening on port 8000')
+	})
+
+	// 웹소켓 서버 생성
+	const wss = new WebSocket.Server({ port: 8001 })
+
+	wss.broadcast = (message) => {
+		wss.clients.forEach((client) => {
+			client.send(message);
+		})
+	}
+	  
+	wss.on("connection", (ws, request) => {
+		ws.on("message", (data) => {
+			wss.broadcast(data.toString());
+		});
+
+		ws.on("close", () => {
+			wss.broadcast(`유저 한명이 떠났습니다. 현재 유저 ${wss.clients.size} 명`);
+		});
+
+		wss.clients.forEach((client) => {
+			wss.broadcast(
+				`새로운 유저가 접속했습니다. 현재 유저 ${wss.clients.size} 명`
+			);
+		});
+	});
+
+11) 서버 재시작 후 브라우저 2개 뛰어서 확인 
+
+
+
+
 
 
 # socket.io

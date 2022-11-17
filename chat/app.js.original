@@ -1,0 +1,28 @@
+const express = require("express")
+const app = express()
+const WebSocket = require('ws');
+
+app.use(express.static("public"))
+
+app.listen(8000, () => {
+	console.log('Example app listening on port 8000')
+})
+
+// 웹소켓 서버 생성
+const wss = new WebSocket.Server({ port: 8001 })
+
+// 웹소켓 서버 연결 이벤트 바인드
+wss.on("connection", (ws, request) => {
+  console.log(`Hello, ${request.socket.remoteAddress}`)
+  ws.send(`Hello, ${request.socket.remoteAddress}`)
+  // 연결 직후 해당 클라이언트로 데이터 전송
+
+  // 데이터 수신 이벤트 바인드
+  ws.on("message", data => {
+	console.log(`Received from client: ${data}`)
+	// 서버의 응답 추가 
+	ws.send(`Received ${data}`) 
+  })
+})
+
+
