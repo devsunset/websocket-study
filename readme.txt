@@ -28,6 +28,8 @@ https://stomp.github.io/
 https://yuricoding.tistory.com/134
 https://tecoble.techcourse.co.kr/post/2020-09-20-websocket/
 https://velog.io/@codingbotpark/Web-Socket-%EC%9D%B4%EB%9E%80
+https://inpa.tistory.com/entry/WEB-%F0%9F%8C%90-%EC%9B%B9-%EC%86%8C%EC%BC%93-Socket-%EC%97%AD%EC%82%AC%EB%B6%80%ED%84%B0-%EC%A0%95%EB%A6%AC
+https://ko.javascript.info/websocket
 
 
 https://dev-gorany.tistory.com/235
@@ -52,6 +54,13 @@ HTTP를 이용한 정보 송수신은 클라이언트의 요청이 없다면, �
 하지만 WebSocket에서는 서버와 브라우저 사이에 양방향 소통이 가능
 클라이언트가 먼저 요청하지 않아도 서버가 먼저 데이터를 보낼 수도 있고, 사용자가 다른 웹사이트로 
 이동하지 않아도 최신 데이터가 적용된 웹을 볼 수 있게 처리 
+
+- WebSocket 서버 종류 
+pywebsocket(apache)
+phpwebsocket(php)
+jWebSocket(java,javascript)
+web-socket-ruby(ruby)
+Socket.IO(node.js)
 
 
 # HTTP에서 실시간성을 보장하는 기법
@@ -115,13 +124,16 @@ CLIENT	3. WebSocket 열기 HandShake 요청 (clinet)   SERVER
         4. WebSocket 열기 HandShake 수락 (clinet)      
         5. WebSocket 데이타 송수신 
 
-- WebSocket 열기 HandShake 요청 (clinet)
+* WebSocket 열기 HandShake 요청 (clinet)
 클라이언트가 HTTP로 WebSocket 연결 요청 WebSocket 연결 요청에는 “Connection:Upgrade”와 “Upgrade:websocket” 헤더를 통해 WebSocket 요청임을 표시
 “Sec-WebSocket-Key” 헤더를 통해 핸드쉐이크 응답을 검증할 키 값을 보냅니다.
 그 외에도 WebSocket 연결시 보조로 이용할 프로토콜 정보등의 추가적인 정보를 헤더에 담아 보낼 수 있음 
 HTTP 버전은 1.1이상 반드시 GET메서드를 사용해야 함 
 Upgrade정보는 서버, 전송, 프로토콜 연결에서 다른 프로토콜로 업그레이드 또는 변경하기 위한 규칙
 Sec-Websocket-Key는 클라이언트가 요청하는 여러 서브 프로토콜을 의미
+
+WebSocket 핸드셰이크는 모방이 불가능
+바닐라 자바스크립트로 헤더를 설정하는 건 기본적으로 막혀있기 때문에 XMLHttpRequest나 fetch로 위 예시와 유사한 헤더를 가진 HTTP 요청을 만들 수 없음 
 
 GET /chat HTTP/1.1
 Host: server.example.com
@@ -132,17 +144,61 @@ Sec-WebSocket-Protocol: chat, superchat
 Sec-WebSocket-Version: 13
 Origin: http://example.com
 
-- WebSocket 열기 HandShake 수락 (clinet)
+* WebSocket 열기 HandShake 수락 (clinet)
 서버의 응답역시 HTTP로 응답 정상적인 응답의 상태코드는 101(Switching Protocols)
 “Sec-WebSocket-Key” 헤더를 통해 받은 값에 특정 값을 붙인 후, SHA-1로 해싱하고 base64로 인코딩한 값을 “Sec-WebSocket-Accept” 헤더에 보냄 
 이 값을 통해 클라이언트는 정상적인 핸드쉐이크 과정을 검증 클라이언트가 정상적으로 응답을 받으면 핸드쉐이크는 종료되고 
-이후부터 WebSocket 프로토콜을 통해 데이터 통신 (핸드 쉐이크가 완료되면 프로토콜이 ws 또는  wss와 같이 데이터 보안을 위해 SSL을 적용한 프로토콜로 변경)
+이후부터 WebSocket 프로토콜을 통해 데이터 통신 
+(핸드 쉐이크가 완료되면 프로토콜이 ws 또는  wss와 같이 데이터 보안을 위해 SSL을 적용한 프로토콜로 변경)
+
+* ws, wss 두 프로토콜의 관계는 HTTP와 HTTPS의 관계와 유사
+wss://는 보안 이외에도 신뢰성(reliability) 측면에서 ws보다 좀 더 신뢰할만한 프로토콜
+ws://를 사용해 데이터를 전송하면 데이터가 암호화되어있지 않은 채로 전송되기 때문에 데이터가 그대로 노출
+오래된 프락시 서버는 WebSocket이 무엇인지 몰라서 ‘이상한’ 헤더가 붙은 요청이 들어왔다고 판단하고 연결을 차단 
+반면 wss://는 TSL(전송 계층 보안(Transport Layer Security))이라는 보안 계층을 통과해 전달되므로 송신자 측에서 데이터가 암호화되고, 복호화는 수신자 측에서 처리 데이터가 담긴 패킷이 암호화된 상태로 프락시 서버를 통과하므로 프락시 서버는 패킷 내부를 확인 불가 
 
 HTTP/1.1 101 Switching Protocols
 Upgrade: websocket
 Connection: Upgrade
 Sec-WebSocket-Accept: HSmrc0sMlYUkAGmm5OPpG2HaGWk=
 Sec-WebSocket-Protocol: chat
+
+- Extensions와 Subprotocols 헤더
+	WebSocket 통신은 Sec-WebSocket-Extensions와 Sec-WebSocket-Protocol 헤더를 지원
+	두 헤더는 각각 WebSocket 프로토콜 기능을 확장(extension)할 때와 서브 프로토콜(subprotocal)을 사용해 데이터를 전송할 때 사용
+
+    Sec-WebSocket-Extensions: deflate-frame – 이 헤더는 브라우저에서 데이터 압축(deflate)을 지원한다는 것을 의미
+    Sec-WebSocket-Extensions은 브라우저에 의해 자동 생성되는데, 그 값엔 데이터 전송과 관련된 무언가나 WebSocket 프로토콜 기능 확장과 관련된 무언가가 여러 개 나열됩니다.
+
+    Sec-WebSocket-Protocol: soap, wamp – 이렇게 헤더가 설정되면 평범한 데이터가 아닌 SOAP나 WAMP(The WebSocket Application Messaging Protocol) 프로토콜을 준수하는 데이터를 전송하겠다는 것을 의미
+    WebSocket에서 지원하는 서브프로토콜 목록은 IANA 카탈로그에서 확인 가능  개발자는 이 헤더를 보고 앞으로 사용하게 될 데이터 포맷을 확인
+    두 헤더는 new WebSocket의 두 번째 매개변수에 값을 넣어서 설정
+
+    서브 프로토콜로 SOAP나 WAMP를 사용하고 싶다고 가정, 두 번째 매개변수에 다음과 같이 배열을 설정
+
+    let socket = new WebSocket("wss://javascript.info/chat", ["soap", "wamp"]);
+
+	이때 서버는 지원 가능한 익스텐션과 프로토콜을 응답 헤더에 담아 클라이언트에 전달
+
+	GET /chat
+	Host: javascript.info
+	Upgrade: websocket
+	Connection: Upgrade
+	Origin: https://javascript.info
+	Sec-WebSocket-Key: Iv8io/9s+lYFgZWcXczP8Q==
+	Sec-WebSocket-Version: 13
+	Sec-WebSocket-Extensions: deflate-frame
+	Sec-WebSocket-Protocol: soap, wamp
+
+	101 Switching Protocols
+	Upgrade: websocket
+	Connection: Upgrade
+	Sec-WebSocket-Accept: hsBlbuDTkk24srzEOTBUlZAlC2g=
+	Sec-WebSocket-Extensions: deflate-frame
+	Sec-WebSocket-Protocol: soap
+
+	이 경우 서버에선 'deflate-frame’이라는 익스텐션과 요청 프로토콜 중 SOAP라는 서브 프로토콜만 지원한다는 사실을 알 수 있음 
+
  
 # WebSocket 프로토콜 특징
 -----------------------------------------------------------
@@ -151,7 +207,98 @@ WebSocket을 위한 별도의 포트는 없고, 기존 포트를 사용
 프레임으로 구성된 메시지라는 논리적 단위로 송수신
 메시지에 포함될 수 있는 교환 가능한 메시지는 텍스트와 바이너리
 
-# WebSocket 한계
+
+* event 
+	WebSocket이 정상적으로 만들어지면 아래 네 개의 이벤트를 사용할 수 있게 됨 
+
+    open – 커넥션이 제대로 만들어졌을 때 발생함
+    message – 데이터를 수신하였을 때 발생함
+    error – 에러가 생겼을 때 발생함
+    close – 커넥션이 종료되었을 때 발생함
+
+	커넥션이 만들어진 상태에서 무언가를 보내고 싶으면 socket.send(data)를 사용
+
+	ex)
+	let socket = new WebSocket("wss://...");
+
+	socket.onopen = function(e) {
+	  alert("connection open");
+	  socket.send("Hello World");
+	};
+
+	socket.onmessage = function(event) {
+	  alert("response: ${event.data}");
+	};
+
+	socket.onclose = function(event) {
+	  if (event.wasClean) {
+	    alert("connection close (code=${event.code} reason=${event.reason})");
+	  } else {
+	    alert("network fail :  (code=${event.code} reason=${event.reason})");
+	  }
+	};
+
+	socket.onerror = function(error) {
+	  alert("error");
+	};
+
+* 데이터 전송 - https://datatracker.ietf.org/doc/html/rfc6455#section-5
+	WebSocket 통신은 '프레임(frame)'이라 불리는 데이터 조각을 사용
+	프레임은 서버와 클라이언트 양측 모두에서 보낼 수 있는데, 프레임 내 담긴 데이터 종류에 따라 다음과 같이 분류
+
+	텍스트 프레임(text frame) – 텍스트 데이터가 담긴 프레임
+	이진 데이터 프레임(binary data frame) – 이진 데이터가 담긴 프레임
+	핑 또는 퐁 프레임(ping/pong frame) – 커넥션이 유지되고 있는지 확인할 때 사용하는 프레임으로 서버나 브라우저에서 자동 생성해서 보내는 프레임
+	이 외에도 '커넥션 종료 프레임(connection close frame) 등 다양한 프레임이 있음
+
+	브라우저 환경에서 개발자는 텍스트나 이진 데이터 프레임만 다루게 됨 
+	이유는 WebSocket .send() 메서드는 텍스트나 바이너리 데이터만 보낼 수 있기 때문
+	socket.send(body)를 호출할 때, body엔 문자열이나 Blob, ArrayBuffer등의 이진 데이터만 들어갈 수 있음 
+	데이터 종류에 따라 특별히 무언가 세팅을 해줘야 할 필요는 없고, 텍스트나 바이너리 타입의 데이터를 넣어주면 알아서 데이터가 전송
+
+	데이터를 받을 때는 텍스트 데이터는 항상 문자열 형태로 응답 됨 
+	이진 데이터를 받을 때엔 Blob이나 ArrayBuffer 포맷 둘 중 하나를 고를 수 있음  
+	socket.binaryType 프로퍼티를 사용하면 Blob이나 ArrayBuffer 포맷 둘 중 하나를 고를 수 있는데, 프로퍼티 기본값은 "blob"이라서 이진 데이터는 기본적으로 Blob 객체 형태로 전송받게 됨
+	Blob은 고차원(high-level)의 이진 객체인데, <a>나 <img> 등의 태그와 바로 통합할 수 있어서 기본값으로 아주 적절
+	하지만 이진 데이터를 처리하는 과정에 개별 데이터 바이트에 접근해야 하는 경우엔 프로퍼티 값을 "arraybuffer"로 바꿀 수도 있음 
+
+	socket.binaryType = "arraybuffer";
+	socket.onmessage = (event) => {
+	// event.data는 (텍스트인 경우) 문자열이거나 (이진 데이터인 경우) arraybuffer 입니다.
+	};
+
+* Rate limiting
+    데이타 전송량이 많거나 네트워크가 느린 경우 아래와 같이 처리 
+	// 100ms마다 소켓을 확인해 쌓여있는 바이트가 없는 경우에만 전송
+	// only if all the existing data was sent out
+	setInterval(() => {
+	  if (socket.bufferedAmount == 0) {
+	    socket.send(moreData());
+	  }
+	}, 100);
+
+* Connection close
+	socket.close([code], [reason]);
+    code is a special WebSocket closing code (optional)
+    reason is a string that describes the reason of closing (optional)
+
+    가장 많이 사용하는 코드
+    https://www.rfc-editor.org/rfc/rfc6455#section-7.4.1
+    1000 – 기본값으로 정상 종료를 의미함(code값이 주어지지 않을 때 기본 세팅됨)
+    1006 – 1000 같은 코드를 수동으로 설정할 수 없을 때 사용하고, 커넥션이 유실(no close frame)되었음을 의미함
+    1001 – 연결 주체 중 한쪽이 떠남(예: 서버 셧다운, 부라우저에서 페이지 종료)
+    1009 – 메시지가 너무 커서 처리하지 못함
+    1011 – 서버 측에서 비정상적인 에러 발생
+
+* Connection state
+    socket.readyState    
+    0 – “CONNECTING”: the connection has not yet been established
+    1 – “OPEN”: 연결이 성립되고 통신 중
+    2 – “CLOSING”: 커넥션 종료 중
+    3 – “CLOSED”: 커넥션이 종료됨
+
+
+# WebSocket 사용시 고려 사항 
 -----------------------------------------------------------
 1.HTML5 이후에 나온 기술
 WebSocket은 HTML5 이후에 나온 기술이기 때문에  이전 기술로 구현된 서비스에서는 Socket.io, SockJS 등을 사용 하여 처리 필요 
@@ -162,3 +309,25 @@ HTTP는 형식을 정해두어서 모두가 약속을 따르기만 하면 해석
 그래서 WebSocket방식은 sub-protocols를 사용해 주고 받는 메시지의 형태를 약속하는 경우가 많다
 서브프로토콜로 자주 쓰이는게 STOMP(STOMP, Simple Text Oriented Message Protocol)이다
 
+3.프로그램 구현에 보다 많은 복잡성 초래 
+WebSocket은 HTTP와 달리 Stateful protocol이기 때문에 서버와 클라이언트 간의 연결을 항상 유지해야 하며 만약 바정상적으로 연결이 끊어졌을 때 적절하게 대응해야 함 이는 기존의 HTTP 사용 시와 비교했을 때 코딩의 복잡성을 가중시키는 요인이 됨 
+
+4.서버와 클라이언트 간의 Socket 연결을 유지한다는 것 자체가 비용이 드는 일, 트래픽양이 많은 서버 같은 경우에는 CPU에 큰 부담이 될 수 있음 
+
+5.서버와 클라이언트 간의 연결이 끊어졌을 때 생성되는 에러 메세지가 구체적이지 않아서 (예를 들어 여러가지 다른 이유로 연결이 끊어졌는데 에러 메세지가 같은 경우) 디버깅을 하는데 어려움이 많음 
+
+
+# socket.io
+-----------------------------------------------------------
+WebSocket은 HTML5의 기술이기 때문에 오래된 버전의 웹 브라우저는 WebSocket을 지원하지 않음 
+이를 해결하기 위해 나온 여러 기술 중 하나가 Socket.io 
+
+웹페이지가 열리는 브라우저가 WebSocket을 지원하면 WebSocket 방식으로 동작하고,
+지원하지 않는 브라우저라면 일반 http를 이용해서 실시간 통신을 처리 
+
+Socket.io는 node.js 기반으로 만들어진 기술로, 거의 모든 웹 브라우저와 모바일 장치를 지원하는 실시간 웹 애플리케이션 지원 라이브러리
+이것은 100% 자바스크립트로 구현되어 있으며, 현존하는 대부분의 실시간 웹 기술들을 추상화
+
+Socket.io는 자바스크립트를 이용하여 브라우저 종류에 상관없이 실시간 웹을 구현할 수 있도록 한 기술
+Socket.io는 웹 브라우저와 웹 서버의 종류와 버전을 파악하여 가장 적합한 기술을 선택하여 사용
+브라우저에 FlashSocket이라는 기술을 지원하는 플러그인이 설치되어 있으면 그것을 사용하고 플러그인이 없으면 AJAX Long Polling 방식을 사용
