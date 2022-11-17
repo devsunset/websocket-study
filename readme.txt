@@ -85,8 +85,8 @@ HTTP 프로토콜에서 HandShaking을 완료한 후, HTTP로 동작하지만, H
 웹소켓도 TCP/IP위에서 동작하므로, 서버와 클라이언트는 웹소켓을 사용하기 전에 서로 TCP/IP 접속이 되어 있어야 함 
 TCP/IP 접속이 완료된 후 서버와 클라이언트는 웹소켓 열기 HandShake 과정을 시작
 
-	    1. TCP/IP 접속 요청 (client)
-	    2. TCP/IP 접속 수락 (server)
+	1. TCP/IP 접속 요청 (client)
+	2. TCP/IP 접속 수락 (server)
 CLIENT	3. 웹 소켓 열기 HandShake 요청 (clinet)   SERVER
         4. 웹 소켓 열기 HandShake 수락 (clinet)      
         5. 웹 소켓 데이타 송수신 
