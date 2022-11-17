@@ -31,20 +31,18 @@ https://velog.io/@codingbotpark/Web-Socket-%EC%9D%B4%EB%9E%80
 https://inpa.tistory.com/entry/WEB-%F0%9F%8C%90-%EC%9B%B9-%EC%86%8C%EC%BC%93-Socket-%EC%97%AD%EC%82%AC%EB%B6%80%ED%84%B0-%EC%A0%95%EB%A6%AC
 https://ko.javascript.info/websocket
 https://hudi.blog/websocket-with-nodejs/
-
-
+https://hyeon-jinhyeok.tistory.com/38
 https://dev-gorany.tistory.com/235
+https://velog.io/@jguuun/Socketio-WS-diff
+https://basemenks.tistory.com/253
 
 ########################################################
-### Websocket & Socket.io Guide
+### Websocket Guide 
 
-# WebSocket
------------------------------------------------------------
 기존의 단방향 HTTP 프로토콜과 호환되어 양방향 통신을 제공하기 위해 개발된 프로토콜
 일반 Socket통신과 달리 HTTP 80 Port를 사용하므로 방화벽에 제약이 없으며 통상 WebSocket으로 불림
 접속까지는 HTTP 프로토콜을 이용하고, 그 이후 통신은 자체적인 WebSocket 프로토콜로 통신
 RFC 6455 로 국제적으로 표준화 되어있다. HTTP 와 웹소켓은 모두 OSI 참조 모델의 7계층에 위치해있고, TCP 에 의존
-
 
 WebSocket은 HTTP(Hyper Text Transfer Protocol)를 사용하는 네트워크 데이터 통신의 단점을 보완
 HTTP를 사용한 통신은 클라이언트가 먼저 요청을 보내고, 그 요청에 따라 웹 서버가 응답하는 형태이며 
@@ -52,7 +50,6 @@ HTTP를 사용한 통신은 클라이언트가 먼저 요청을 보내고, 그 �
 양쪽이 데이터를 동시에 보내는 것이 아니기 때문에 이러한 통신 방식을 반이중 통신(Half Duplex)이라고 함 
 WebSocket은 TCP/IP 의 소켓과 마찬가지로 전이중통신(Full-Duplex Communication) 을 지원
  
-
 HTTP를 이용한 정보 송수신은 클라이언트의 요청이 없다면, 서버로부터 응답을 받을 수 없는 구조
 하지만 WebSocket에서는 서버와 브라우저 사이에 양방향 소통이 가능
 클라이언트가 먼저 요청하지 않아도 서버가 먼저 데이터를 보낼 수도 있고, 사용자가 다른 웹사이트로 
@@ -64,7 +61,6 @@ phpwebsocket(php)
 jWebSocket(java,javascript)
 web-socket-ruby(ruby)
 Socket.IO(node.js)
-
 
 # HTTP에서 실시간성을 보장하는 기법
 -----------------------------------------------------------
@@ -202,14 +198,12 @@ Sec-WebSocket-Protocol: chat
 
 	이 경우 서버에선 'deflate-frame’이라는 익스텐션과 요청 프로토콜 중 SOAP라는 서브 프로토콜만 지원한다는 사실을 알 수 있음 
 
- 
 # WebSocket 프로토콜 특징
 -----------------------------------------------------------
 최초 접속시에만 http프로토콜 위에서 handshaking을 하기 때문에 http header를 사용
 WebSocket을 위한 별도의 포트는 없고, 기존 포트를 사용
 프레임으로 구성된 메시지라는 논리적 단위로 송수신
 메시지에 포함될 수 있는 교환 가능한 메시지는 텍스트와 바이너리
-
 
 * event 
 	WebSocket이 정상적으로 만들어지면 아래 네 개의 이벤트를 사용할 수 있게 됨 
@@ -319,12 +313,11 @@ WebSocket은 HTTP와 달리 Stateful protocol이기 때문에 서버와 클라�
 
 5.서버와 클라이언트 간의 연결이 끊어졌을 때 생성되는 에러 메세지가 구체적이지 않아서 (예를 들어 여러가지 다른 이유로 연결이 끊어졌는데 에러 메세지가 같은 경우) 디버깅을 하는데 어려움이 많음 
 
-
 # Websocket Example (Simple chat based on nodejs)
 -----------------------------------------------------------
 
 1) express 프로젝트 생성
-  $ mkdir chat && cd chat
+  $ mkdir chat_websocket && cd chat_websocket
   $ yarn init
   $ yarn add express
   $ yarn add ws
@@ -345,7 +338,7 @@ WebSocket은 HTTP와 달리 Stateful protocol이기 때문에 서버와 클라�
 	</html>
 
 3) express server 작성 
-  $ cd chat
+  $ cd chat_websocket
   $ vi app.js
   	const express = require("express")
 	const app = express()
@@ -522,22 +515,93 @@ WebSocket은 HTTP와 달리 Stateful protocol이기 때문에 서버와 클라�
 
 11) 서버 재시작 후 브라우저 2개 뛰어서 확인 
 
-
-
-
-
-
-# socket.io
+# WebSocket 에러 트러블슈팅
 -----------------------------------------------------------
-WebSocket은 HTML5의 기술이기 때문에 오래된 버전의 웹 브라우저는 WebSocket을 지원하지 않음 
+* Q: WebSocket이 무슨 문제로 실패했는지 상세하게 출력 안됨 
+  A: WebSocket 에러가 failed: 이후로 상세 메시지가 뜨지 않는 것은 크롬 개발자도구의 오류
+     다른 브라우저에서 확인 
+
+
+* Q: NET::ERR_CERT_DATE_INVALID
+  A: HTTPS 프로토콜을 사용하면서도 SSL 인증서가 만료되었거나, 잘못된 인증서를 사용하는 경우 발생
+     인증서를 새로히 갱신하여 적용하거나, 인증서가 잘못 발급되지 않았는지 확인 localhost에 디버깅 시에 발생한다면, 잘못된 인증서를 사용한다는 NET::ERR_CERT_COMMON_NAME_INVALID 에러가 추가적으로 발생
+     NET::ERR_CERT_AUTHORITY_INVALID 인증서는 인증 사슬이 잘못 구성되었을 가능성
+
+* Q: failed: Error during WebSocket handshake: Unexpected response code: 200
+  A: response로 status code 101 (switching protocol)이 반환되지 않고, 200 Ok 가 전달되어서 나타나는 오류
+     대체적으로 nginx 의 기본 설정이 잘못되어서 발생
+
+     nginx Upgrade 헤더와 Connection 헤더를 같이 프록시에 전달
+	 location /chat/ {
+		proxy_pass http://backend;
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+	 }
+
+	 nginx를 사용하고 있지 않는 상황에서 200번 에러가 발생하는 경우에는 백엔드의 path 맵핑이 잘못되어 있을 수 있음 
+
+* Q: failed: Error during WebSocket handshake: Unexpected response code: 404
+  A: 백엔드 맵핑이 없거나, 잘못된 요청을 보냈거나, 다른 WebSocket 맵핑이 중복되는 등의 사유로 발생
+
+     spring의 경우 debug모듈 활성화 해서 상세 내용 확인 
+     #logging.level.org.springframework.web=DEBUG
+	 debug=true
+
+
+########################################################
+### Socket.io Guide
+
+WebSocket은 HTML5의 기술이고 아직 확정된 상태가 아니기 때문에  브라우저 별로 지원하는 WebSocket 버전이 다름 
+오래된 버전의 웹 브라우저는 WebSocket을 지원하지 않음 
 이를 해결하기 위해 나온 여러 기술 중 하나가 Socket.io 
 
-웹페이지가 열리는 브라우저가 WebSocket을 지원하면 WebSocket 방식으로 동작하고,
-지원하지 않는 브라우저라면 일반 http를 이용해서 실시간 통신을 처리 
+WebSocket, FlashSocket, AJAX Long Polling, AJAX Multi part Streaming, IFrame, JSONP Polling 등, 다양한 방법을 하나의 API로 추상화한 것
+브라우저가 WebSocket을 지원하면 WebSocket 방식으로 동작하고, 지원하지 않는 브라우저라면 일반 http를 이용해서 실시간 통신을 처리 
 
 Socket.io는 node.js 기반으로 만들어진 기술로, 거의 모든 웹 브라우저와 모바일 장치를 지원하는 실시간 웹 애플리케이션 지원 라이브러리
 이것은 100% 자바스크립트로 구현되어 있으며, 현존하는 대부분의 실시간 웹 기술들을 추상화
 
-Socket.io는 자바스크립트를 이용하여 브라우저 종류에 상관없이 실시간 웹을 구현할 수 있도록 한 기술
-Socket.io는 웹 브라우저와 웹 서버의 종류와 버전을 파악하여 가장 적합한 기술을 선택하여 사용
-브라우저에 FlashSocket이라는 기술을 지원하는 플러그인이 설치되어 있으면 그것을 사용하고 플러그인이 없으면 AJAX Long Polling 방식을 사용
+WebSocket 프로토콜은 표준 프로토콜이기 때문에 WebSocket을 지원하는 여러 서버 구현체들이 있지만 Socket.io는 Node.js에 밖에 없다는 점이 특징
+
+
+# WebSocket & Socket.io 차이 
+-----------------------------------------------------------
+
+WebSocket
+    HTML5 웹 표준 기술
+    매우 빠르게 작동하며 통신할 때 아주 적은 데이터를 이용함
+    이벤트를 단순히 듣고, 보내는 것만 가능함
+
+Socket.io
+    표준 기술이 아니며, 라이브러리임
+    소켓 연결 실패 시 fallback을 통해 다른 방식으로 알아서 해당 클라이언트와 연결을 시도함
+    방 개념을 이용해 일부 클라이언트에게만 데이터를 전송하는 브로드캐스팅이 가능함
+
+
+ws는 조금 불친절하지만 원하는대로 코드 작성하기가 쉬웠고, socket.io는 기능이 많고 쉽게 사용하기 쉬우며 직관적입니다. 처음 배우기에 확실히 좋은건 socket.io, 원하는대로 커스텀하여 만들기 좋은 것은 ws라고 할 수 있습니다.
+
+두가지 모듈로 각각 채팅을 구현하면서 느낀 다른 점들을 서술해보려 합니다.🙂
+1. socket.io는 추가적인 설치를 해야 한다.
+
+둘 다 서버에서는 모듈 설치가 필요하지만 ws는 웹소켓 표준이라 클라이언트에 추가적인 설치를 요구하지 않습니다.
+반면, ws에서는 new WebSocket('서버주소/네임스페이스')으로 객체를 생성을 바로 사용할 수 있지만, socket.io는 js파일을 추가해야 합니다.
+2. ws는 string형으로 데이터를 전송한다.
+
+socket.io는 이벤트명과 데이터를 명확하게 구분하고 모든 자료형을 주고 받을 수 있지만, ws는 string 자료형 하나로 데이터를 주고 받습니다. 이벤트명도 데이터에 포함해서 받으므로 데이터를 parsing하는 과정이 필요합니다.
+이를 활용하기 위해 주로 JSON.parse나 JSON.stringify함수를 사용하게 되며, NestJS에서는 event로 이벤트명을 지정하고 data로 데이터명을 지정하는 규약을 가집니다.
+3. ws에는 룸이 없다.
+
+socket.io에서는 당연하게 지원되는 room과 broadcast와 같은 기능을 ws에서는 직접 만들어야 하는 경우가 있습니다. 다행히 namespace는 ws도 지원합니다!
+socket.io에서는 서버.broadcast.emit('이벤트명, 데이터)으로 자신을 제외한 사용자에게 데이터를 보낼 수 있지만, ws에서는 클라이언트.send(데이터)를 for문 반복하여 보내야 합니다.
+4. socket.io는 계속해서 연결을 시도한다.
+
+연결이 끊어졌을 때 socket.io는 주기적으로 연결을 시도합니다. ws는 한번 연결이 끊어졌을 때, 복구되지 않으므로 같은 기능을 구현하려면 추가적인 코드가 필요합니다.
+결론
+
+둘 다 같은 기능을 하면서 기능적인 차이가 많지만 장단점이 있다고 생각합니다. ws가 직관적이고 가벼운 느낌이라 편했지만 socket.io의 to, of 와 같이 특정 클라이언트를 지정하는 기능을 무시할 수 없었습니다. socket.io가 ws의 확장판같은 느낌으로 편하기 때문에 많이 쓰는 이유를 알 수 있었습니다.
+
+
+서버에서 연결된 소켓(사용자)들을 세밀하게 관리해야하는 서비스인 경우에는 Broadcasting 기능이 있는 socket.io을 쓰는게 유지보수 측면에서 훨씬 이점이 많습니다.
+
+반면 가상화폐 거래소같이 데이터 전송이 많은 경우에는 빠르고 비용이 적은 표준 WebSocket을 이용하는게 바람직하겠죠. 실제로 업비트나 바이낸스 소켓 API를 사용해보면 정말 엄청나게 많은 데이터가 들어옵니다.
