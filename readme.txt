@@ -323,7 +323,7 @@ WebSocket은 HTTP와 달리 Stateful protocol이기 때문에 서버와 클라�
 
 5.서버와 클라이언트 간의 연결이 끊어졌을 때 생성되는 에러 메세지가 구체적이지 않아서 (예를 들어 여러가지 다른 이유로 연결이 끊어졌는데 에러 메세지가 같은 경우) 디버깅을 하는데 어려움이 많음 
 
-# Websocket Example (Simple chat based on nodejs)
+# Websocket Example (Simple chat based on nodejs) - chat_websocket
 -----------------------------------------------------------
 
 1) express 프로젝트 생성
@@ -562,6 +562,8 @@ WebSocket은 HTTP와 달리 Stateful protocol이기 때문에 서버와 클라�
 ########################################################
 ### Socket.io Guide
 
+https://socket.io/
+
 WebSocket은 HTML5의 기술이고 아직 확정된 상태가 아니기 때문에  브라우저 별로 지원하는 WebSocket 버전이 다름 
 오래된 버전의 웹 브라우저는 WebSocket을 지원하지 않음 
 이를 해결하기 위해 나온 여러 기술 중 하나가 Socket.io 
@@ -600,3 +602,16 @@ WebSocket 프로토콜은 표준 프로토콜이기 때문에 WebSocket을 지�
 
 서버에서 연결된 소켓(사용자)들을 세밀하게 관리해야하는 서비스인 경우에는 Broadcasting 기능이 있는 socket.io을 쓰는게 유지보수 측면에서 훨씬 이점
 반면 가상화폐 거래소같이 데이터 전송이 많은 경우에는 빠르고 비용이 적은 표준 WebSocket을 이용하는게 용이 
+
+
+# Socket.io Example (Simple chat based on nodejs)  - chat_socketio
+-----------------------------------------------------------
+
+
+
+########################################################
+### Spring WebSocket & STOMP 
+
+https://brunch.co.kr/@springboot/695
+
+https://github.com/sieunkr/spring-websocket-repo
