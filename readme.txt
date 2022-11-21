@@ -564,9 +564,14 @@ WebSocket은 HTTP와 달리 Stateful protocol이기 때문에 서버와 클라�
 
 https://socket.io/
 
+https://socket.io/docs/v4/
+https://socket.io/docs/v4/server-api/
+https://socket.io/docs/v4/client-api/
+
+
 WebSocket은 HTML5의 기술이고 아직 확정된 상태가 아니기 때문에  브라우저 별로 지원하는 WebSocket 버전이 다름 
 오래된 버전의 웹 브라우저는 WebSocket을 지원하지 않음 
-이를 해결하기 위해 나온 여러 기술 중 하나가 Socket.io 
+이를 해결하기 위해 나온 여러 기술 중 하나가 Socket.io (실시간으로 상호작용하는 웹 서비스를 만드는 기술인 웹소켓을 쉽게 사용할 수 있게 해주는 모듈)
 
 WebSocket, FlashSocket, AJAX Long Polling, AJAX Multi part Streaming, IFrame, JSONP Polling 등, 다양한 방법을 하나의 API로 추상화한 것
 브라우저가 WebSocket을 지원하면 WebSocket 방식으로 동작하고, 지원하지 않는 브라우저라면 일반 http를 이용해서 실시간 통신을 처리 
@@ -603,11 +608,34 @@ WebSocket 프로토콜은 표준 프로토콜이기 때문에 WebSocket을 지�
 서버에서 연결된 소켓(사용자)들을 세밀하게 관리해야하는 서비스인 경우에는 Broadcasting 기능이 있는 socket.io을 쓰는게 유지보수 측면에서 훨씬 이점
 반면 가상화폐 거래소같이 데이터 전송이 많은 경우에는 빠르고 비용이 적은 표준 WebSocket을 이용하는게 용이 
 
-
 # Socket.io Example (Simple chat based on nodejs)  - chat_socketio
 -----------------------------------------------------------
 
+1. mkdir chat_socketio && cd chat_socketio
+2. yarn init 
+3. yarn add  socket.io
+4. yarn add express
 
+5. index. js && index.html 파일 작성  - Simple Chat
+	* server - chat_socketio/index.js
+	* client - chat_socketio/index.html
+6. node index.js 실행 후 http://localhost:3000 접속 확인 
+
+7. namespace.js  && namespace.html 파일 작성  - Namespace 예제
+	* server - chat_socketio/namespace.js
+	* client - chat_socketio/namespace.html
+8. node namespace.js 실행 후 http://localhost:3000 접속 확인 
+
+localhost:3000/ 로 접속 시 Default-Namespace가 / 이기 때문에  socket.io 서버가 바로 연결
+Namespace 란게 같은 Namespace에 있는 소켓 끼리만 통신 하는 개념
+
+9. room.js  && room.html 파일 작성   - Room 을 이용한  Simple Chat
+	* server - chat_socketio/room.js
+	* client - chat_socketio/room.html
+10. node room.js 실행 후 http://localhost:3000 접속 확인 
+
+Room은 Namespace의 하위 개념
+(NameSpace -> Room -> Socket ) Namespace안에 있는 소켓들을 또 다시 Room으로 나눌 수 있음 
 
 ########################################################
 ### Spring WebSocket & STOMP 
